@@ -15,12 +15,9 @@ int main()
     {
         graph.addUser(user);
     }
-
     generateFriendships(graph, users, 10); //gives each user 10 friends
-
     cout << "Users: " << graph.getNumUsers() << endl;
     cout << "Edges: " << graph.getNumEdges() << endl;
-
     auto start = chrono::high_resolution_clock::now();
     int nodesVisited = 0;
     vector<int> recs = bfsRecommend(graph, 25, 2, 10, nodesVisited);
