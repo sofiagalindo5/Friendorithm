@@ -1,5 +1,7 @@
 #include "user.h"
 
+using namespace std;
+
 User::User()
 {
     user_id = 0;
@@ -9,7 +11,7 @@ User::User()
     industry = "";
 }
 
-User::User(int id, int age, const std::string& school, const std::string& major, const std::string& industry)
+User::User(int id, int age, const string& school, const string& major, const string& industry)
 {
     user_id = id;
     this->age = age;

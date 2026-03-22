@@ -3,17 +3,19 @@
 
 #include <string>
 
+using namespace std;
+
 class User
 {
 public:
     int user_id;
     int age;
-    std::string school;
-    std::string major;
-    std::string industry;
+    string school;
+    string major;
+    string industry;
 
     User();
-    User(int id, int age, const std::string& school, const std::string& major, const std::string& industry);
+    User(int id, int age, const string& school, const string& major, const string& industry);
 };
 
 #endif

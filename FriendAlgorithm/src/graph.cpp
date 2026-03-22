@@ -1,81 +1,61 @@
 #include "graph.h"
-#include <stdexcept>
 
-void Graph::addUser(const User& user)
+using namespace std;
+
+Graph::Graph()
 {
-    users[user.user_id] = user;
-
-    if (adjList.find(user.user_id) == adjList.end())
-    {
-        adjList[user.user_id] = std::vector<int>();
-    }
+    //user ids start at 1 not 0 
+    adjList.resize(1);
 }
 
-void Graph::addEdge(int user1, int user2)
+Graph::Graph(int numUsers)
 {
-    if (user1 == user2)
+    //makes graph big enough
+    adjList.resize(numUsers + 1);
+}
+
+void Graph::resizeIfNeeded(int userId)
+{
+    if (userId >= adjList.size())
     {
-        return;
+        adjList.resize(userId + 1);
     }
-
-    if (!hasUser(user1) || !hasUser(user2))
-    {
-        return;
-    }
-
-    if (areFriends(user1, user2))
-    {
-        return;
-    }
-
-    adjList[user1].push_back(user2);
-    adjList[user2].push_back(user1);
-
-    weights[user1][user2] = 1;
-    weights[user2][user1] = 1;
 }
 
 void Graph::addWeightedEdge(int user1, int user2, int weight)
 {
-    if (user1 == user2)
+    //edge cases
+    if (user1 <= 0 || user2 <= 0 || user1 == user2)
     {
         return;
     }
 
-    if (!hasUser(user1) || !hasUser(user2))
+    resizeIfNeeded(user1);
+    resizeIfNeeded(user2);
+
+    if (!areFriends(user1, user2))
     {
-        return;
+        //adds edges for both 
+        adjList[user1].push_back(make_pair(user2, weight));
+        adjList[user2].push_back(make_pair(user1, weight));
     }
-
-    if (areFriends(user1, user2))
-    {
-        return;
-    }
-
-    adjList[user1].push_back(user2);
-    adjList[user2].push_back(user1);
-
-    weights[user1][user2] = weight;
-    weights[user2][user1] = weight;
-}
-
-bool Graph::hasUser(int userId) const
-{
-    return users.find(userId) != users.end();
 }
 
 bool Graph::areFriends(int user1, int user2) const
 {
-    auto it = adjList.find(user1);
-
-    if (it == adjList.end())
+    if (user1 <= 0 || user2 <= 0)
     {
         return false;
     }
 
-    for (int neighbor : it->second)
+    if (user1 >= adjList.size() || user2 >= adjList.size())
     {
-        if (neighbor == user2)
+        return false;
+    }
+
+    for (int i = 0; i < adjList[user1].size(); i++)
+    {
+        if (adjList[user1][i].first == user2)
         {
             return true;
         }
@@ -84,62 +64,18 @@ bool Graph::areFriends(int user1, int user2) const
     return false;
 }
 
-const User& Graph::getUser(int userId) const
+const vector<pair<int, int>>& Graph::getNeighbors(int userId) const
 {
-    auto it = users.find(userId);
-
-    if (it == users.end())
+    if (userId <= 0 || userId >= adjList.size())
     {
-        throw std::out_of_range("User not found");
+        return emptyList;
     }
-
-    return it->second;
-}
-
-const std::vector<int>& Graph::getNeighbors(int userId) const
-{
-    auto it = adjList.find(userId);
-
-    if (it == adjList.end())
-    {
-        throw std::out_of_range("User not found in adjacency list");
-    }
-
-    return it->second;
-}
-
-int Graph::getWeight(int user1, int user2) const
-{
-    auto outerIt = weights.find(user1);
-
-    if (outerIt == weights.end())
-    {
-        return -1;
-    }
-
-    auto innerIt = outerIt->second.find(user2);
-
-    if (innerIt == outerIt->second.end())
-    {
-        return -1;
-    }
-
-    return innerIt->second;
+    
+    //returns full list of neighbors
+    return adjList[userId];
 }
 
 int Graph::getNumUsers() const
 {
-    return static_cast<int>(users.size());
-}
-
-int Graph::getNumEdges() const
-{
-    int total = 0;
-
-    for (const auto& pair : adjList)
-    {
-        total += static_cast<int>(pair.second.size());
-    }
-
-    return total / 2;
+    return adjList.size() - 1;
 }
