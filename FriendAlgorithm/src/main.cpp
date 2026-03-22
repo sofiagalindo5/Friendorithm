@@ -1,30 +1,49 @@
 #include <iostream>
-#include "dataset.h"
+#include <vector>
+#include "user.h"
 #include "graph.h"
-#include "bfs.h"
-#include <chrono>
+#include "dataset.h"
+#include "dijkstra.h"
+
 using namespace std;
 
 int main()
 {
-    vector<User> users = generateUsers(100000);
+    int numUsers = 100;
+    int friendsPerUser = 5;
+    int chosenUserId = 1;
+    int topK = 10;
 
-    Graph graph;
+    cout << "Generating users..." << endl;
+    vector<User> users = generateUsers(numUsers);
 
-    for (const User& user : users)
-    {
-        graph.addUser(user);
-    }
-    generateFriendships(graph, users, 10); //gives each user 10 friends
-    cout << "Users: " << graph.getNumUsers() << endl;
-    cout << "Edges: " << graph.getNumEdges() << endl;
-    auto start = chrono::high_resolution_clock::now();
+    cout << "Creating graph..." << endl;
+    Graph graph(numUsers);
+
+    cout << "Generating friendships..." << endl;
+    generateFriendships(graph, users, friendsPerUser);
+
+    cout << endl;
+    cout << "Testing recommendations for User " << chosenUserId << ":" << endl;
+
     int nodesVisited = 0;
-    vector<int> recs = bfsRecommend(graph, 25, 2, 10, nodesVisited);
-    auto end = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast<chrono::milliseconds>(end - start);
-    cout << "BFS runtime: " << duration.count() << " ms" << endl;
-    cout << "Nodes visited: " << nodesVisited << endl;
+    vector<int> recommendations = getDijkstraRecommendations(graph, chosenUserId, topK, nodesVisited);
+
+    cout << "Top " << topK << " recommended friends:" << endl;
+
+    for (int i = 0; i < recommendations.size(); i++)
+    {
+        int recommendedId = recommendations[i];
+
+        cout << i + 1 << ". User ID: " << recommendedId << endl;
+        cout << "   Age: " << users[recommendedId - 1].age << endl;
+        cout << "   School: " << users[recommendedId - 1].school << endl;
+        cout << "   Major: " << users[recommendedId - 1].major << endl;
+        cout << "   Industry: " << users[recommendedId - 1].industry << endl;
+        cout << endl;
+    }
+
+    cout << "Nodes visited by Dijkstra: " << nodesVisited << endl;
 
     return 0;
 }

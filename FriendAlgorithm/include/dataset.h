@@ -6,17 +6,19 @@
 #include "user.h"
 #include "graph.h"
 
-//creates vector of users
-std::vector<User> generateUsers(int numUsers);
+using namespace std;
 
-//adds friendship edges 
-void generateFriendships(Graph& graph, const std::vector<User>& users, int friendsPerUser);
+// creates vector of users
+vector<User> generateUsers(int numUsers);
 
-//calculate edge weight between users
+// adds friendship edges
+void generateFriendships(Graph& graph, const vector<User>& users, int friendsPerUser);
+
+// calculate edge weight between users
 int calculateWeight(const User& user1, const User& user2);
 
-// save/load user to file 
-void saveUsersToFile(const std::vector<User>& users, const std::string& filename);
-std::vector<User> loadUsersFromFile(const std::string& filename);
+// save/load users to file
+void saveUsersToFile(const vector<User>& users, const string& filename);
+vector<User> loadUsersFromFile(const string& filename);
 
 #endif
