@@ -7,6 +7,7 @@
 
 using namespace std;
 
+//possible attributes to randomize
 vector<string> schools = {
     "University of Florida",
     "Florida State University",
@@ -46,6 +47,7 @@ vector<string> industries = {
     "Media"
 };
 
+//creates certain num of fake userd 
 vector<User> generateUsers(int numUsers)
 {
     vector<User> users;
@@ -63,12 +65,16 @@ vector<User> generateUsers(int numUsers)
     return users;
 }
 
+//calculatesd how similiar two users are 
+// smaller edge weight = very similiar 
+// larger edge weight = not similiar
 int calculateWeight(const User& user1, const User& user2)
 {
     int weight = 10;
 
     if (user1.school == user2.school)
     {
+        //subtracts, for Dijkstra's algo, the smaller the path the better
         weight -= 3;
     }
 
@@ -87,6 +93,7 @@ int calculateWeight(const User& user1, const User& user2)
         weight -= 2;
     }
 
+    //makes it so the min is 1
     if (weight < 1)
     {
         weight = 1;
@@ -95,6 +102,7 @@ int calculateWeight(const User& user1, const User& user2)
     return weight;
 }
 
+//creates friendhsip edges
 void generateFriendships(Graph& graph, const vector<User>& users, int friendsPerUser)
 {
     int numUsers = static_cast<int>(users.size());
@@ -108,9 +116,11 @@ void generateFriendships(Graph& graph, const vector<User>& users, int friendsPer
 
         while (added < friendsPerUser && attempts < maxAttempts)
         {
+            //chooses random users
             int randomIndex = rand() % numUsers;
             int friendId = users[randomIndex].user_id;
 
+            //checks if valid, no self friending
             if (friendId != currentUserId && !graph.areFriends(currentUserId, friendId))
             {
                 int weight = calculateWeight(users[i], users[randomIndex]);
@@ -123,6 +133,7 @@ void generateFriendships(Graph& graph, const vector<User>& users, int friendsPer
     }
 }
 
+//seperates w comma
 void saveUsersToFile(const vector<User>& users, const string& filename)
 {
     ofstream file(filename);
@@ -145,6 +156,7 @@ void saveUsersToFile(const vector<User>& users, const string& filename)
     file.close();
 }
 
+//reads adn saves users to vector
 vector<User> loadUsersFromFile(const string& filename)
 {
     vector<User> users;

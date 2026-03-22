@@ -1,31 +1,34 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-#include <unordered_map>
 #include <vector>
-#include "user.h"
+#include <utility>
+
+using namespace std;
 
 class Graph
 {
 private:
-    std::unordered_map<int, User> users;
-    std::unordered_map<int, std::vector<int>> adjList;
-    std::unordered_map<int, std::unordered_map<int, int>> weights;
+//outer vector = each index is a user id
+//inner vecyor list of user friendships 
+    vector<vector<pair<int, int>>> adjList;
+
+//each pair stores friendId and weight 
+    vector<pair<int, int>> emptyList;
+
+    void resizeIfNeeded(int userId);
 
 public:
-    void addUser(const User& user);
-    void addEdge(int user1, int user2);
+    Graph();
+    Graph(int numUsers);
+
     void addWeightedEdge(int user1, int user2, int weight);
 
-    bool hasUser(int userId) const;
     bool areFriends(int user1, int user2) const;
 
-    const User& getUser(int userId) const;
-    const std::vector<int>& getNeighbors(int userId) const;
-    int getWeight(int user1, int user2) const;
+    const vector<pair<int, int>>& getNeighbors(int userId) const;
 
     int getNumUsers() const;
-    int getNumEdges() const;
 };
 
 #endif
