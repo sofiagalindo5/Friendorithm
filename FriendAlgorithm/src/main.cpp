@@ -11,8 +11,6 @@
 using namespace std;
 
 int main() {
-    cout << "Comparing BFS and Dijkstra for friend recommendations...\n\n";
-
     srand(time(0));
     int numUsers = 100000;
     int friendsPerUser = 10;
@@ -24,17 +22,14 @@ int main() {
         return 0;
     }
 
+    cout << "Comparing BFS and Dijkstra for friend recommendations...\n\n";
     cout << "Total Users: " << numUsers << endl;
-
     cout << "Generating users..." << endl;
     vector<User> users = generateUsers(numUsers);
-
     cout << "Creating graph..." << endl;
     Graph graph(numUsers);
-
     cout << "Generating friendships..." << endl;
     generateFriendships(graph, users, friendsPerUser);
-
     cout << "Generating recommendations for User " << chosenUserId << "..." << endl;
     cout << endl;
 
@@ -95,7 +90,6 @@ int main() {
     cout << "    •  BFS only looks at nearby users.\n";
     cout << "Actual users created: " << users.size() << endl;
     cout << "Graph size (users): " << graph.getNumUsers() << endl;
-
 
     cout << "\nANALYSIS\n";
     cout << "BFS runs in O(V + E) but is limited to local connections.\n";
