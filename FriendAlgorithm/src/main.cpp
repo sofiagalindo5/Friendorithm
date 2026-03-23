@@ -39,8 +39,8 @@ int main() {
     vector<int> recommendations = getDijkstraRecommendations(graph, chosenUserId, topK, nodesVisited);
     auto end = chrono::high_resolution_clock::now();
     chrono::duration<double> elapsed = end - start;
-    cout << "Dijkstra Recommendations (Top " << topK << "):" << endl;
 
+    cout << "Dijkstra Recommendations (Top " << topK << "):" << endl;
     if (recommendations.empty()) {
         cout << "No recommendations found.\n";
     }
@@ -65,7 +65,6 @@ int main() {
     chrono::duration<double> bfsTime = bfsEnd - bfsStart;
 
     cout << "\nBFS Recommendations (Top " << topK << "):\n";
-
     for (int i = 0; i < bfsRecs.size(); i++){
         int recommendedId = bfsRecs[i];
         cout << i + 1 << ". User ID: " << recommendedId << endl;
