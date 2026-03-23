@@ -1,67 +1,50 @@
-
-
-//weights of all edges must be non negative 
+//weights of all edges must be non negative
 //must keep track of nodes visited 
 
 #include "dijkstra.h"
 #include <algorithm>
-
+#include <queue>
+#include <climits>
 using namespace std;
 
-const int INF = 1000000000;
-
-int getMinDistanceUser(const vector<int>& dist, const vector<bool>& visited)
-{
-    int minDistance = INF;
-    int minUser = -1;
-
-    for (int i = 1; i < dist.size(); i++)
-    {
-        if (!visited[i] && dist[i] < minDistance)
-        {
-            minDistance = dist[i];
-            minUser = i;
-        }
+//will get shortest weighted path (most similiar)
+vector<int> dijkstraShortestPaths(const Graph& graph, int startUserId, int& nodesVisited){
+    if (startUserId <= 0 || startUserId > graph.getNumUsers()) {
+        return {};
+    }
+    if (graph.getNumUsers() == 0) {
+        return {};
     }
 
-    //returns next node to visit (smallest path)
-    return minUser;
-}
-
-//will get shortest weighted path (most similiar)
-vector<int> dijkstraShortestPaths( const Graph& graph, int startUserId, int& nodesVisited)
-{
     int numUsers = graph.getNumUsers();
-
-    vector<int> dist(numUsers + 1, INF);
+    vector<int> dist(numUsers + 1, INT_MAX);
     vector<bool> visited(numUsers + 1, false);
+    priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>> pq;
 
     dist[startUserId] = 0;
+    pq.push({0, startUserId});
     nodesVisited = 0;
 
-    for (int count = 1; count <= numUsers; count++)
-    {
-        int currentUser = getMinDistanceUser(dist, visited);
+    while (!pq.empty()){
+        int currentUser = pq.top().second;
+        pq.pop();
 
-        if (currentUser == -1)
-        {
-            break;
+        if (visited[currentUser]) {
+            continue;
         }
 
-        //marks visited
         visited[currentUser] = true;
         nodesVisited++;
 
-        const vector<pair<int, int>>& neighbors = graph.getNeighbors(currentUser);
+        const vector<pair<int,int>>& neighbors = graph.getNeighbors(currentUser);
 
-        for (int i = 0; i < neighbors.size(); i++)
-        {
-            int neighborId = neighbors[i].first;
-            int weight = neighbors[i].second;
+        for (auto neighborPair : neighbors){
+            int neighbor = neighborPair.first;
+            int weight = neighborPair.second;
 
-            if (!visited[neighborId] && dist[currentUser] + weight < dist[neighborId])
-            {
-                dist[neighborId] = dist[currentUser] + weight;
+            if (dist[currentUser] + weight < dist[neighbor]){
+                dist[neighbor] = dist[currentUser] + weight;
+                pq.push({dist[neighbor], neighbor});
             }
         }
     }
@@ -69,42 +52,33 @@ vector<int> dijkstraShortestPaths( const Graph& graph, int startUserId, int& nod
     return dist;
 }
 
-vector<int> getDijkstraRecommendations(const Graph& graph, int startUserId, int topK, int& nodesVisited)
-{
+vector<int> getDijkstraRecommendations(const Graph& graph, int startUserId, int topK, int& nodesVisited){
     vector<int> dist = dijkstraShortestPaths(graph, startUserId, nodesVisited);
-
     vector<pair<int, int>> candidates;
+    int numUsers = graph.getNumUsers();
 
-    for (int userId = 1; userId < dist.size(); userId++)
-    {
-        if (userId == startUserId)
-        {
-            continue;
+    for (int userId = 1; userId <= numUsers; userId++){
+        if (userId == startUserId) continue;
+        if (dist[userId] == INT_MAX) continue;
+        if (graph.areFriends(startUserId, userId)) continue;
+
+        int mutual = 0;
+
+        // count mutual friends
+        const vector<pair<int,int>>& neighbors = graph.getNeighbors(startUserId);
+        for (auto p : neighbors) {
+            if (graph.areFriends(p.first, userId)) {
+                mutual++;
+            }
         }
-
-        if (graph.areFriends(startUserId, userId))
-        {
-            continue;
-        }
-
-        if (dist[userId] == INF)
-        {
-            continue;
-        }
-
-        candidates.push_back(make_pair(dist[userId], userId));
+        int score = dist[userId] - (mutual * 2);
+        candidates.push_back({score, userId});
     }
-
     sort(candidates.begin(), candidates.end());
-
     vector<int> recommendations;
 
-    //takes first 10
-    for (int i = 0; i < candidates.size() && i < topK; i++)
-    {
+    for (int i = 0; i < candidates.size() && i < topK; i++){
         recommendations.push_back(candidates[i].second);
     }
-
-    //returns only user Id
     return recommendations;
 }

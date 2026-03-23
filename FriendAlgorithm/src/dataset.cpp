@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
-
+#include <unordered_set>
 using namespace std;
 
 // possible attributes to randomize
@@ -48,12 +48,10 @@ vector<string> industries = {
 };
 
 // creates certain number of fake users
-vector<User> generateUsers(int numUsers)
-{
+vector<User> generateUsers(int numUsers){
     vector<User> users;
 
-    for (int i = 1; i <= numUsers; i++)
-    {
+    for (int i = 1; i <= numUsers; i++){
         int age = rand() % 13 + 18;
         string school = schools[rand() % schools.size()];
         string major = majors[rand() % majors.size()];
@@ -61,70 +59,56 @@ vector<User> generateUsers(int numUsers)
 
         users.push_back(User(i, age, school, major, industry));
     }
-
     return users;
 }
 
 // calculates how similar two users are
 // smaller edge weight = very similar
 // larger edge weight = not similar
-int calculateWeight(const User& user1, const User& user2)
-{
+int calculateWeight(const User& user1, const User& user2){
     int weight = 10;
 
-    if (user1.school == user2.school)
-    {
+    if (user1.school == user2.school){
         weight -= 3;
     }
-
-    if (user1.major == user2.major)
-    {
+    if (user1.major == user2.major){
         weight -= 3;
     }
-
-    if (user1.industry == user2.industry)
-    {
+    if (user1.industry == user2.industry){
         weight -= 2;
     }
-
-    if (abs(user1.age - user2.age) <= 2)
-    {
+    if (abs(user1.age - user2.age) <= 2){
         weight -= 2;
     }
-
-    if (weight < 1)
-    {
+    if (weight < 1){
         weight = 1;
     }
-
     return weight;
 }
 
 // creates friendship edges
-void generateFriendships(Graph& graph, const vector<User>& users, int friendsPerUser)
-{
+void generateFriendships(Graph& graph, const vector<User>& users, int friendsPerUser){
     int numUsers = users.size();
+    vector<unordered_set<int>> friendSets(numUsers + 1);
 
-    for (int i = 0; i < numUsers; i++)
-    {
-        int currentUserId = users[i].user_id;
-        int added = 0;
-        int attempts = 0;
-        int maxAttempts = friendsPerUser * 20;
+    for (int i = 0; i < numUsers; i++){
+        int userId = users[i].user_id;
 
-        while (added < friendsPerUser && attempts < maxAttempts)
-        {
+        while (friendSets[userId].size() < friendsPerUser){
             int randomIndex = rand() % numUsers;
             int friendId = users[randomIndex].user_id;
 
-            if (friendId != currentUserId && !graph.areFriends(currentUserId, friendId))
+            if (friendId == userId) continue;
+
+            if (friendSets[userId].find(friendId) == friendSets[userId].end())
             {
                 int weight = calculateWeight(users[i], users[randomIndex]);
-                graph.addWeightedEdge(currentUserId, friendId, weight);
-                added++;
-            }
 
-            attempts++;
+                graph.addWeightedEdge(userId, friendId, weight);
+
+                friendSets[userId].insert(friendId);
+                friendSets[friendId].insert(userId);
+            }
         }
     }
 }

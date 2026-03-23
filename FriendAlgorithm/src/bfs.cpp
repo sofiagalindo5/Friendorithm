@@ -6,18 +6,16 @@
 using namespace std;
 
 int countMutualFriends(const Graph& graph, int user1, int user2) {
-    const vector<int>& neighbors1 = graph.getNeighbors(user1);
-    const vector<int>& neighbors2 = graph.getNeighbors(user2);
+    const vector<pair<int,int>>& neighbors1 = graph.getNeighbors(user1);
+    const vector<pair<int,int>>& neighbors2 = graph.getNeighbors(user2);
 
     unordered_set<int> set1;
-    for (int n : neighbors1)
-    {
-        set1.insert(n);
+    for (auto n : neighbors1){
+        set1.insert(n.first);
     }
     int count = 0;
-    for (int n : neighbors2)
-    {
-        if (set1.find(n) != set1.end())
+    for (auto n : neighbors2){
+        if (set1.find(n.first) != set1.end())
         {
             count++;
         }
@@ -26,18 +24,22 @@ int countMutualFriends(const Graph& graph, int user1, int user2) {
 }
 
 vector<int> bfsRecommend(const Graph& graph, int startUserId, int maxDepth, int topK, int& nodesVisited) {
+    if (startUserId <= 0 || startUserId > graph.getNumUsers()) {
+        return {};
+    }
+    if (graph.getNumUsers() == 0) {
+        return {};
+    }
+
     vector<int> recommendations;
     nodesVisited = 0;
-
-    if (!graph.hasUser(startUserId)) {
-        return recommendations;
-    }
 
     queue<int> q;
     unordered_set<int> visited;
     unordered_map<int,int> distance;
 
     vector<pair<int,pair<int,int>>> candidates;
+    unordered_set<int> added;
     q.push(startUserId);
     visited.insert(startUserId);
     distance[startUserId] = 0;
@@ -49,15 +51,27 @@ vector<int> bfsRecommend(const Graph& graph, int startUserId, int maxDepth, int 
         if (distance[current] >= maxDepth){
             continue;
         }
-        const vector<int>& neighbors = graph.getNeighbors(current);
-        for (int neighbor : neighbors) {
+        const vector<pair<int,int>>& neighbors = graph.getNeighbors(current);
+        for (auto neighborPair : neighbors){
+            int neighbor = neighborPair.first;
             if (visited.find(neighbor) == visited.end()) {
                 visited.insert(neighbor);
                 distance[neighbor] = distance[current] + 1;
                 q.push(neighbor);
                 if (neighbor != startUserId && !graph.areFriends(startUserId, neighbor)) {
-                    int mutual = countMutualFriends(graph,startUserId,neighbor);
-                    candidates.push_back({neighbor,{mutual,distance[neighbor]}});
+                    if (added.find(neighbor) == added.end()) {
+                        int mutual = countMutualFriends(graph, startUserId, neighbor);
+                        int weight = 10;
+                        for (auto p : graph.getNeighbors(startUserId)) {
+                            if (p.first == neighbor) {
+                                weight = p.second;
+                                break;
+                            }
+                        }
+                        int score = mutual * 3 - weight;
+                        candidates.push_back({neighbor,{score,distance[neighbor]}});
+                        added.insert(neighbor);
+                    }
                 }
             }
         }
