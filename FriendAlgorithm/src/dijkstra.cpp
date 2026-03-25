@@ -1,6 +1,3 @@
-//weights of all edges must be non negative
-//must keep track of nodes visited 
-
 #include "dijkstra.h"
 #include <algorithm>
 #include <queue>
@@ -10,9 +7,6 @@ using namespace std;
 //will get shortest weighted path (most similiar)
 vector<int> dijkstraShortestPaths(const Graph& graph, int startUserId, int& nodesVisited){
     if (startUserId <= 0 || startUserId > graph.getNumUsers()) {
-        return {};
-    }
-    if (graph.getNumUsers() == 0) {
         return {};
     }
 
@@ -38,7 +32,7 @@ vector<int> dijkstraShortestPaths(const Graph& graph, int startUserId, int& node
 
         const vector<pair<int,int>>& neighbors = graph.getNeighbors(currentUser);
 
-        for (auto neighborPair : neighbors){
+        for (auto& neighborPair : neighbors){
             int neighbor = neighborPair.first;
             int weight = neighborPair.second;
 
@@ -52,26 +46,17 @@ vector<int> dijkstraShortestPaths(const Graph& graph, int startUserId, int& node
     return dist;
 }
 
+// recommendations
 vector<int> getDijkstraRecommendations(const Graph& graph, int startUserId, int topK, int& nodesVisited){
     vector<int> dist = dijkstraShortestPaths(graph, startUserId, nodesVisited);
     vector<pair<int, int>> candidates;
-    int numUsers = graph.getNumUsers();
 
-    for (int userId = 1; userId <= numUsers; userId++){
+    for (int userId = 1; userId <= graph.getNumUsers(); userId++){
         if (userId == startUserId) continue;
         if (dist[userId] == INT_MAX) continue;
         if (graph.areFriends(startUserId, userId)) continue;
 
-        int mutual = 0;
-
-        // count mutual friends
-        const vector<pair<int,int>>& neighbors = graph.getNeighbors(startUserId);
-        for (auto p : neighbors) {
-            if (graph.areFriends(p.first, userId)) {
-                mutual++;
-            }
-        }
-        int score = dist[userId] - (mutual * 2);
+        int score = dist[userId];
         candidates.push_back({score, userId});
     }
     sort(candidates.begin(), candidates.end());

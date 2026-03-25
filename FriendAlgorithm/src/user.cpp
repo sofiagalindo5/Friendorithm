@@ -2,8 +2,7 @@
 
 using namespace std;
 
-User::User()
-{
+User::User(){
     user_id = 0;
     age = 0;
     school = "";
@@ -11,8 +10,7 @@ User::User()
     industry = "";
 }
 
-User::User(int id, int age, const string& school, const string& major, const string& industry)
-{
+User::User(int id, int age, const string& school, const string& major, const string& industry){
     user_id = id;
     this->age = age;
     this->school = school;

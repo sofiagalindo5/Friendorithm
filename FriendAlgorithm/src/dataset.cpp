@@ -7,6 +7,7 @@
 #include <unordered_set>
 using namespace std;
 
+
 // possible attributes to randomize
 vector<string> schools = {
     "University of Florida",
