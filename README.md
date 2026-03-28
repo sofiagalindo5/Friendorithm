@@ -1,11 +1,11 @@
 # Friendorithm
 
-A graph-based friend recommendation system that models a social network of 100,000 users and compares BFS and Dijkstra's algorithm for generating friend suggestions.
+A graph-based friend recommendation system that simulates a social network of 100,000 users. It compares BFS and Dijkstra’s algorithm to generate and evaluate friend suggestions, giving insight into how each approach performs at scale.
 
-## Dependencies
-- C++17 or later
-- SFML 2.5 or later
-- CMake 3.x or later
+## Requirements
+- C++17 or newer
+- SFML 2.5 or newer
+- CMake 3.x or newer
 
 ## Installing SFML
 
@@ -27,7 +27,7 @@ Download from https://www.sfml-dev.org/download.php and follow the setup instruc
 
     ./Friendorithm
 
-## Usage
+## How to Use
 1. Enter a User ID between 1 and 100,000 in the input box
 2. Click **Generate Recommendations**
 3. View the top 5 friend recommendations from both BFS and Dijkstra side by side
